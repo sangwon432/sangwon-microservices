@@ -13,6 +13,13 @@ import { CreateProductDto } from './dtos/create-product.dto';
 import { PageOptionsDto } from '../common/dtos/page-options.dto';
 import { PageDto } from '../common/dtos/page.dto';
 import { Product } from './entities/product.entity';
+import {
+  Ctx,
+  EventPattern,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 
 @Controller('product')
 export class ProductController {
@@ -51,5 +58,12 @@ export class ProductController {
     @Body() updateProductDto: CreateProductDto,
   ) {
     return await this.productService.updateProductById(id, updateProductDto);
+  }
+
+  @MessagePattern('user-created')
+  public async execute(@Payload() data: any, @Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const originalMessage = context.getMessage();
+    console.log('data', data);
   }
 }
